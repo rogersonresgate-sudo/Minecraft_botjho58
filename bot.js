@@ -1,10 +1,11 @@
 const mineflayer = require('mineflayer');
 
-const bot = mineflayer.createBot({
-  host: 'sungmar.aternos.me',
-  port: 63557,
-  username: 'NPC',
-  version: '26.3' // <--- Insira a versão real do servidor aqui
+function createBot() {
+  const bot = mineflayer.createBot({
+    host: 'sungmar.aternos.me',
+    port: 63557,
+    username: 'NPC',
+    version: '26.3' // <--- Insira a versão real do servidor aqui
 });
 
     bot.on('spawn', () => {
