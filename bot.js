@@ -1,12 +1,11 @@
 const mineflayer = require('mineflayer');
 
-function createBot() {
-    const bot = mineflayer.createBot({
-        host: 'sungmar.aternos.me', // <--- REEMPLAZA ESTO POR LA IP DE TU SERVER
-        port: 63557,                // Puerto predeterminado de Minecraft
-        username: 'Minecraft_botjho58',    // Nombre genérico del bot/NPC dentro del juego
-        version: false              // Autodetecta la versión exacta del servidor (1.8 a 1.21+)
-    });
+const bot = mineflayer.createBot({
+  host: 'sungmar.aternos.me',
+  port: 63557,
+  username: 'NPC',
+  version: '26.3' // <--- Insira a versão real do servidor aqui
+});
 
     bot.on('spawn', () => {
         console.log(`[NPC] El bot ha aparecido correctamente en el mapa.`);
