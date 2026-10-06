@@ -1,69 +1,48 @@
 const mineflayer = require('mineflayer');
 
+// Configurações do seu servidor
+const config = {
+  host: 'sungmar.aternos.me', // Coloque o IP do seu Aternos aqui
+  port: 63557,                   // Coloque a porta (padrão é 25565)
+  username: 'BotAternos247',     // Nome do bot
+  version: '26.3'              // IMPORTANTE: Defina a versão exata do Minecraft do seu servidor
+};
+
 function createBot() {
-  const bot = mineflayer.createBot({
-    host: 'sungmar.aternos.me',
-    port: 63557,
-    username: 'NPC',
-    version: '26.3' // <--- Insira a versão real do servidor aqui
-});
+  console.log('[NPC] Conectando ao servidor...');
 
-    bot.on('spawn', () => {
-        console.log(`[NPC] El bot ha aparecido correctamente en el mapa.`);
-        // Si tu servidor No-Premium requiere contraseña, descomenta la línea de abajo:
-        // setTimeout(() => bot.chat('/login erickJKN'), 4000);
-    });
+  const bot = mineflayer.createBot(config);
 
-    bot.on('login', () => {
-        console.log(`[NPC] Conexión establecida con el servidor de Minecraft.`);
-    });
+  bot.on('login', () => {
+    console.log(`[NPC] Bot entrou como ${bot.username}`);
+  });
 
-    // Rutina automatizada del NPC: Buscar cofre, interactuar, cerrar y saltar (Cada 45 segundos)
-    setInterval(async () => {
-        if (!bot || !bot.entity) return;
+  bot.on('spawn', () => {
+    console.log('[NPC] Bot nasceu no mundo e está ativo!');
+  });
 
-        try {
-            // 1. Localizar el bloque de cofre en un radio de 5 bloques
-            const chestBlock = bot.findBlock({
-                matching: bot.registry.blocksByName.chest.id,
-                maxDistance: 5
-            });
+  bot.on('error', (err) => {
+    console.error('[NPC] Erro no bot:', err.message);
+  });
 
-            if (chestBlock) {
-                console.log('[NPC] Interactuando con el contenedor cercano...');
-                
-                // 2. Abrir el contenedor (genera la animación y sonido físico en el servidor)
-                const chest = await bot.openChest(chestBlock);
-                console.log('[NPC] Contenedor abierto.');
-                
-                // Mantener la interfaz abierta durante 2 segundos simulando actividad de inventario
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // 3. Cerrar la interfaz del contenedor
-                chest.close();
-                console.log('[NPC] Contenedor cerrado.');
-            } else {
-                console.log('[NPC] Aviso: No se detectó ningún contenedor válido cerca.');
-            }
+  bot.on('kicked', (reason) => {
+    console.log('[NPC] Bot foi expulso do servidor:', reason);
+  });
 
-            // 4. Ejecutar acción de salto físico para evitar la inactividad (Anti-AFK)
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            bot.setControlState('jump', true);
-            setTimeout(() => bot.setControlState('jump', false), 500);
-            console.log('[NPC] Acción anti-inactividad completada con éxito.');
-
-        } catch (err) {
-            console.log(`[NPC] Error en el ciclo de ejecución: ${err.message}`);
-        }
-    }, 45000);
-
-    // Sistema de auto-reconexión segura tras expulsiones o reinicios del servidor
-    bot.on('end', (reason) => {
-        console.log(`[NPC] Conexión finalizada por: ${reason}. Reintentando en 25 segundos...`);
-        setTimeout(createBot, 25000);
-    });
-
-    bot.on('error', (err) => console.log(`[NPC] Error crítico de red detectado: ${err}`));
+  bot.on('end', () => {
+    console.log('[NPC] Conexão encerrada. Tentando reconectar em 15 segundos...');
+    setTimeout(createBot, 15000);
+  });
 }
 
+// Inicia a função do bot
 createBot();
+
+// Tratamento global para não crashar a ação no GitHub sem logs
+process.on('uncaughtException', (err) => {
+  console.error('[NPC] Exceção não capturada:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[NPC] Rejeição de Promise:', reason);
+});
